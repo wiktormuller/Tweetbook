@@ -9,6 +9,7 @@ using Tweetbook.Contracts.Requests;
 using Tweetbook.Contracts.Responses;
 using Tweetbook.Contracts.V1;
 using Tweetbook.Domain;
+using Tweetbook.Extensions;
 using Tweetbook.Services;
 
 namespace Tweetbook.Controllers.V1.PostsController
@@ -46,6 +47,7 @@ namespace Tweetbook.Controllers.V1.PostsController
             var post = new Post
             {
                 Name = postRequest.Name,
+                UserId = HttpContext.GetUserId()
             };
 
             await _postService.CreatePostAsync(post);
@@ -63,11 +65,15 @@ namespace Tweetbook.Controllers.V1.PostsController
         [HttpPut(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update([FromQuery]Guid postId, [FromBody] UpdatePostRequest request)
         {
-            var post = new Post
+            var userOwnsPost = await _postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
+
+            if (!userOwnsPost)
             {
-                Id = postId,
-                Name = request.Name
-            };
+                return BadRequest(new {Error = "You do not own this post."});
+            }
+
+            var post = await _postService.GetPostByIdAsync(postId);
+            post.Name = request.Name;
 
             var updated = await _postService.UpdatePostAsync(post);
             if (updated)
@@ -79,6 +85,13 @@ namespace Tweetbook.Controllers.V1.PostsController
         [HttpDelete(ApiRoutes.Posts.Delete)]
         public async Task<IActionResult> Delete([FromQuery] Guid postId)
         {
+            var userOwnsPost = await _postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
+
+            if (!userOwnsPost)
+            {
+                return BadRequest(new {Error = "You do not own this post."});
+            }
+            
             var deleted = await _postService.DeletePostAsync(postId);
             if (deleted)
                 return NoContent();
