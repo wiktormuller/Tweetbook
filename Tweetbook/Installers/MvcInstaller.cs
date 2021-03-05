@@ -50,7 +50,7 @@ namespace Tweetbook.Installers
                 {
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Basic",
+                    Scheme = "Bearer",
                     In = ParameterLocation.Header,
                     Description = "Basic Authorization header using the Bearer scheme."
                 });
@@ -63,7 +63,7 @@ namespace Tweetbook.Installers
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = "Basic",
+                                Id = "Bearer",
                             }
                         },
                         new string[] {}
