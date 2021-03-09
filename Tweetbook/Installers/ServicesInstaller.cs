@@ -9,6 +9,8 @@ namespace Tweetbook.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IPostService, PostService>();
+
+            services.AddScoped<ITagService, TagService>();
             
             services.AddScoped<IIdentityService, IdentityService>();
         }
