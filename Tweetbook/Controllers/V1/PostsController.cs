@@ -63,6 +63,7 @@ namespace Tweetbook.Controllers.V1.PostsController
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
+        [Authorize(Policy = "PostEditor")]
         public async Task<IActionResult> Update([FromQuery]Guid postId, [FromBody] UpdatePostRequest request)
         {
             var userOwnsPost = await _postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
