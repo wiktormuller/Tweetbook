@@ -5,9 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Tweetbook.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using Tweetbook.Authorization;
 using Tweetbook.Filters;
+using Tweetbook.Services;
 
 namespace Tweetbook.Installers
 {
@@ -59,6 +61,14 @@ namespace Tweetbook.Installers
             });
 
             services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
+
+            services.AddSingleton<IUriService>(provider =>
+            {
+                var accessor = provider.GetRequiredService<IHttpContextAccessor>();
+                var request = accessor.HttpContext.Request;
+                var absoluteUri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), "/");
+                return new UriService(absoluteUri);
+            });
         }
     }
 }

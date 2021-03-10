@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tweetbook.Contracts.Requests;
+using Tweetbook.Contracts.Requests.Queries;
 using Tweetbook.Contracts.Responses;
 using Tweetbook.Contracts.V1;
 using Tweetbook.Domain;
 using Tweetbook.Extensions;
+using Tweetbook.Filters;
+using Tweetbook.Helpers;
 using Tweetbook.Services;
 
 namespace Tweetbook.Controllers.V1.PostsController
@@ -19,9 +22,11 @@ namespace Tweetbook.Controllers.V1.PostsController
     public class PostsController : Controller
     {
         private readonly IPostService _postService;
-        public PostsController(IPostService postService)
+        private readonly IUriService _uriService;
+        public PostsController(IPostService postService, IUriService uriService)
         {
             _postService = postService;
+            _uriService = uriService;
         }
         
         /// <summary>
@@ -29,20 +34,35 @@ namespace Tweetbook.Controllers.V1.PostsController
         /// </summary>
         /// <response code="200">Returns all the posts in the system.</response>
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        [Cached(600)]
-        public async Task<IActionResult> GetAll()
+        [Cache(600)]
+        public async Task<IActionResult> GetAll([FromQuery] PaginationQuery paginationQuery)
         {
-            var posts = await _postService.GetPostsAsync();
-
-            return Ok(posts.Select(post => new PostResponse
+            var paginationFilter = new PaginationFilter
+            {
+                PageNumber = paginationQuery.PageNumber,
+                PageSize = paginationQuery.PageSize
+            };
+            
+            var posts = await _postService.GetPostsAsync(paginationFilter);
+            
+            var postResponse = posts.Select(post => new PostResponse
             {
                 Id = post.Id,
                 Name = post.Name
-            }));
+            }).ToList();
+            
+            if (paginationFilter is null || paginationFilter.PageNumber < 1 || paginationFilter.PageSize < 1)
+            {
+                return Ok(new PagedResponse<PostResponse>(postResponse));
+            }
+
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, paginationFilter, postResponse);
+            
+            return Ok(paginationResponse);
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
-        [Cached(600)]
+        [Cache(600)]
         public async Task<IActionResult> Get([FromRoute]Guid postId)
         {
             var post = await _postService.GetPostByIdAsync(postId);
@@ -51,11 +71,14 @@ namespace Tweetbook.Controllers.V1.PostsController
             {
                 return NotFound();
             }
-            return Ok(new PostResponse
+
+            var postResponse = new PostResponse
             {
                 Id = post.Id,
                 Name = post.Name
-            });
+            };
+
+            return Ok(new Response<PostResponse>(postResponse));
         }
 
         /// <summary>
@@ -79,15 +102,15 @@ namespace Tweetbook.Controllers.V1.PostsController
             {
                 return BadRequest(new ErrorResponse{Errors = new List<ErrorModel>{new ErrorModel{Message = "Unable to create post"}}});
             }
-
-            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
-            var locationUrl = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
-
-            var response = new PostResponse
+            
+            var locationUri = _uriService.GetPostUri(post.Id.ToString());
+            
+            var postResponse = new PostResponse
             {
-                Id = post.Id
+                Id = post.Id,
+                Name = post.Name
             };
-            return Created(locationUrl, post);
+            return Created(locationUri, new Response<PostResponse>(postResponse));
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
@@ -104,8 +127,15 @@ namespace Tweetbook.Controllers.V1.PostsController
             post.Name = request.Name;
 
             var updated = await _postService.UpdatePostAsync(post);
+
+            var postResponse = new PostResponse
+            {
+                Id = post.Id,
+                Name = post.Name
+            };
+            
             if (updated)
-                return Ok(post);
+                return Ok(new Response<PostResponse>(postResponse));
 
             return NotFound();
         }

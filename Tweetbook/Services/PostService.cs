@@ -17,9 +17,15 @@ namespace Tweetbook.Services
             _dbContext = dbContext;
         }
         
-        public async Task<List<Post>> GetPostsAsync()
+        public async Task<List<Post>> GetPostsAsync(PaginationFilter paginationFilter = null)
         {
-            return await _dbContext.Posts.ToListAsync();
+            if (paginationFilter is null)
+            {
+                return await _dbContext.Posts.ToListAsync();   
+            }
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+            return await _dbContext.Posts.Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
         }
 
         public async Task<Post> GetPostByIdAsync(Guid postId)
