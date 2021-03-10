@@ -15,6 +15,7 @@ using Tweetbook.Services;
 namespace Tweetbook.Controllers.V1.PostsController
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Produces("application/json")]
     public class PostsController : Controller
     {
         private readonly IPostService _postService;
@@ -23,25 +24,46 @@ namespace Tweetbook.Controllers.V1.PostsController
             _postService = postService;
         }
         
+        /// <summary>
+        /// Returns all the posts in the system.
+        /// </summary>
+        /// <response code="200">Returns all the posts in the system.</response>
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _postService.GetPostsAsync());
+            var posts = await _postService.GetPostsAsync();
+
+            return Ok(posts.Select(post => new PostResponse
+            {
+                Id = post.Id,
+                Name = post.Name
+            }));
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
-        public IActionResult Get([FromRoute]Guid postId)
+        public async Task<IActionResult> Get([FromRoute]Guid postId)
         {
-            var post = _postService.GetPostByIdAsync(postId);
+            var post = await _postService.GetPostByIdAsync(postId);
 
             if (post is null)
             {
                 return NotFound();
             }
-            return Ok(post);
+            return Ok(new PostResponse
+            {
+                Id = post.Id,
+                Name = post.Name
+            });
         }
 
+        /// <summary>
+        /// Creates posts in the system.
+        /// </summary>
+        /// <response code="201">Creates posts in the system.</response>
+        /// <response code="400">Unable to create the tag due to validation error.</response>
         [HttpPost(ApiRoutes.Posts.Create)]
+        [ProducesResponseType(typeof(PostResponse), 201)]
+        [ProducesResponseType(typeof(ErrorResponse), 400)]
         public async Task<IActionResult> Create([FromBody]CreatePostRequest postRequest)
         {
             var post = new Post
@@ -50,7 +72,11 @@ namespace Tweetbook.Controllers.V1.PostsController
                 UserId = HttpContext.GetUserId()
             };
 
-            await _postService.CreatePostAsync(post);
+            var created = await _postService.CreatePostAsync(post);
+            if (!created)
+            {
+                return BadRequest(new ErrorResponse{Errors = new List<ErrorModel>{new ErrorModel{Message = "Unable to create post"}}});
+            }
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUrl = baseUrl + "/" + ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString());
