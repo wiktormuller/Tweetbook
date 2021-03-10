@@ -5,7 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Tweetbook.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using Tweetbook.Authorization;
 
 namespace Tweetbook.Installers
 {
@@ -41,7 +43,15 @@ namespace Tweetbook.Installers
                     x.TokenValidationParameters = tokenValidationParameters;
                 });
 
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("MustWorkForGoogle", policy =>
+                {
+                    policy.AddRequirements(new WorksForCompanyRequirement("gmail.com"));
+                });
+            });
+
+            services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
 
             services.AddSwaggerGen(x =>
             {

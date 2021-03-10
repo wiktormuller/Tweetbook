@@ -14,7 +14,7 @@ using Tweetbook.Services;
 
 namespace Tweetbook.Controllers.V1.PostsController
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Poster")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PostsController : Controller
     {
         private readonly IPostService _postService;
@@ -83,7 +83,7 @@ namespace Tweetbook.Controllers.V1.PostsController
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "MustWorkForGoogle")]
         public async Task<IActionResult> Delete([FromQuery] Guid postId)
         {
             var userOwnsPost = await _postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
