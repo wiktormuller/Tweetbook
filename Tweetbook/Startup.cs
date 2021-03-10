@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Tweetbook.Data;
@@ -15,6 +17,8 @@ using Microsoft.Extensions.Hosting;
 using Swashbuckle.AspNetCore.Swagger;
 using SwOptions = Tweetbook.Options;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using Tweetbook.Contracts.HealthCheck;
 using Tweetbook.Installers;
 
 namespace Tweetbook
@@ -62,6 +66,28 @@ namespace Tweetbook
                 option.SwaggerEndpoint(swaggerOptions.UIEndpoint, swaggerOptions.Description);
             });
 
+            app.UseHealthChecks("/health", new HealthCheckOptions
+            {
+                ResponseWriter = async (context, report) =>
+                {
+                    context.Response.ContentType = "application/json";
+
+                    var response = new HealthCheckResponse
+                    {
+                        Status = report.Status.ToString(),
+                        Checks = report.Entries.Select(x => new HealthCheck
+                        {
+                            Component = x.Key,
+                            Status = x.Value.Status.ToString(),
+                            Description = x.Value.Description
+                        }),
+                        Duration = report.TotalDuration
+                    };
+
+                    await context.Response.WriteAsync((JsonConvert.SerializeObject(response)));
+                }
+            });
+            
             //app.UseHttpsRedirection();
             app.UseStaticFiles();
 

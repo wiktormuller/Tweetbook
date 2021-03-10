@@ -62,11 +62,11 @@ namespace Tweetbook.Installers
 
             services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
 
-            services.AddSingleton<IUriService>(provider =>
+            services.AddScoped<IUriService>(provider =>
             {
                 var accessor = provider.GetRequiredService<IHttpContextAccessor>();
                 var request = accessor.HttpContext.Request;
-                var absoluteUri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), "/");
+                var absoluteUri = $"{request.Scheme}://{request.Host.ToUriComponent()}{request.Path}";
                 return new UriService(absoluteUri);
             });
         }
