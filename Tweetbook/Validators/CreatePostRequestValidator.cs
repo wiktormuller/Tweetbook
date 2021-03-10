@@ -9,8 +9,8 @@ namespace Tweetbook.Validators
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .Matches("^[a-zA-Z0-9 *$")
-                .Must(x => x.Contains("."));
+                .Matches("^[a-zA-Z0-9 ]*$")
+                .Must(x => x.Contains(" "));
         }
     }
 }

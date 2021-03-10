@@ -11,8 +11,8 @@ namespace Tweetbook.Sdk.Sample
         {
             var cachedToken = string.Empty;
             
-            var identityApi = RestService.For<IIdentityApi>("https://localhost:5001");
-            var tweetbookApi = RestService.For<ITweetbookApi>("https://localhost:5001", new RefitSettings
+            var identityApi = RestService.For<IIdentityApi>("http://localhost:5000");
+            var tweetbookApi = RestService.For<ITweetbookApi>("http://localhost:5000", new RefitSettings
             {
                 AuthorizationHeaderValueGetter = () => Task.FromResult(cachedToken)
             });
@@ -25,7 +25,7 @@ namespace Tweetbook.Sdk.Sample
             
             var loginResponse = await identityApi.LoginAsync(new UserLoginRequest
             {
-                Email = "sdkaccount@gmail.com",
+                Email = "test@email.com",
                 Password = "Password123!"
             });
 
@@ -35,7 +35,7 @@ namespace Tweetbook.Sdk.Sample
 
             var createdPost = await tweetbookApi.CreateAsync(new CreatePostRequest
             {
-                Name = "This is created by SDK."
+                Name = "This is created by SDK"
             });
 
             var retrievedPost = await tweetbookApi.GetAsync(createdPost.Content.Id);

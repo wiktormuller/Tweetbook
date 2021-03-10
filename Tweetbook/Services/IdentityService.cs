@@ -53,7 +53,7 @@ namespace Tweetbook.Services
                 Email = email,
                 UserName = email
             };
-            await _userManager.AddClaimAsync(newUser, new Claim("posts.edit", "true"));
+            
             var createdUser = await _userManager.CreateAsync(newUser, password);
 
             if (!createdUser.Succeeded)
@@ -214,23 +214,6 @@ namespace Tweetbook.Services
             var userClaims = await _userManager.GetClaimsAsync(user);
             claims.AddRange(userClaims);
 
-            var userRoles = await _userManager.GetRolesAsync(user);
-            foreach (var userRole in userRoles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, userRole));
-                var role = await _roleManager.FindByNameAsync(userRole);
-                if(role == null) continue;
-                var roleClaims = await _roleManager.GetClaimsAsync(role);
-
-                foreach (var roleClaim in roleClaims)
-                {
-                    if(claims.Contains(roleClaim))
-                        continue;
-
-                    claims.Add(roleClaim);
-                }
-            }
-            
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),

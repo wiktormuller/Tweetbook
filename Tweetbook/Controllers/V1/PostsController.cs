@@ -29,6 +29,7 @@ namespace Tweetbook.Controllers.V1.PostsController
         /// </summary>
         /// <response code="200">Returns all the posts in the system.</response>
         [HttpGet(ApiRoutes.Posts.GetAll)]
+        [Cached(600)]
         public async Task<IActionResult> GetAll()
         {
             var posts = await _postService.GetPostsAsync();
@@ -41,6 +42,7 @@ namespace Tweetbook.Controllers.V1.PostsController
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
+        [Cached(600)]
         public async Task<IActionResult> Get([FromRoute]Guid postId)
         {
             var post = await _postService.GetPostByIdAsync(postId);
