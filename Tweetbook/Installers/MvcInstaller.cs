@@ -41,10 +41,7 @@ namespace Tweetbook.Installers
                     x.TokenValidationParameters = tokenValidationParameters;
                 });
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("PostEditor", builder => builder.RequireClaim("posts.edit", "true"));
-            });
+            services.AddAuthorization();
 
             services.AddSwaggerGen(x =>
             {

@@ -14,7 +14,7 @@ using Tweetbook.Services;
 
 namespace Tweetbook.Controllers.V1.PostsController
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Poster")]
     public class PostsController : Controller
     {
         private readonly IPostService _postService;
@@ -63,7 +63,6 @@ namespace Tweetbook.Controllers.V1.PostsController
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
-        [Authorize(Policy = "PostEditor")]
         public async Task<IActionResult> Update([FromQuery]Guid postId, [FromBody] UpdatePostRequest request)
         {
             var userOwnsPost = await _postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
@@ -84,6 +83,7 @@ namespace Tweetbook.Controllers.V1.PostsController
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete([FromQuery] Guid postId)
         {
             var userOwnsPost = await _postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());

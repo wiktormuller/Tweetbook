@@ -17,14 +17,17 @@ namespace Tweetbook.Services
     public class IdentityService : IIdentityService
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JwtOptions _jwtOptions;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly ApplicationDbContext _dbContext;
         
-        public IdentityService(UserManager<IdentityUser> userManager, JwtOptions jwtOptions, 
-            TokenValidationParameters tokenValidationParameters, ApplicationDbContext dbContext)
+        public IdentityService(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, 
+            JwtOptions jwtOptions, TokenValidationParameters tokenValidationParameters, 
+            ApplicationDbContext dbContext)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _jwtOptions = jwtOptions;
             _tokenValidationParameters = tokenValidationParameters;
             _dbContext = dbContext;
@@ -211,6 +214,23 @@ namespace Tweetbook.Services
             var userClaims = await _userManager.GetClaimsAsync(user);
             claims.AddRange(userClaims);
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+            foreach (var userRole in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+                var role = await _roleManager.FindByNameAsync(userRole);
+                if(role == null) continue;
+                var roleClaims = await _roleManager.GetClaimsAsync(role);
+
+                foreach (var roleClaim in roleClaims)
+                {
+                    if(claims.Contains(roleClaim))
+                        continue;
+
+                    claims.Add(roleClaim);
+                }
+            }
+            
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
