@@ -2,6 +2,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tweetbook", "Tweetbook\Tweetbook.csproj", "{6EC4B027-A345-475F-9CD9-1140451F5F95}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tweetbook.Sdk", "Tweetbook.Sdk\Tweetbook.Sdk.csproj", "{4606589C-A50A-4FBD-BC00-BF31E08FD847}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tweetbook.Sdk.Sample", "Tweetbook.Sdk.Sample\Tweetbook.Sdk.Sample.csproj", "{1C32A339-256B-4C7D-AB8D-EFDD6E0E1994}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tweetbook.Contracts", "Tweetbook.Contracts\Tweetbook.Contracts.csproj", "{06E57D8C-B10F-4419-AB52-497B21B1F6EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +18,17 @@ Global
 		{6EC4B027-A345-475F-9CD9-1140451F5F95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6EC4B027-A345-475F-9CD9-1140451F5F95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EC4B027-A345-475F-9CD9-1140451F5F95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4606589C-A50A-4FBD-BC00-BF31E08FD847}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4606589C-A50A-4FBD-BC00-BF31E08FD847}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4606589C-A50A-4FBD-BC00-BF31E08FD847}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4606589C-A50A-4FBD-BC00-BF31E08FD847}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C32A339-256B-4C7D-AB8D-EFDD6E0E1994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C32A339-256B-4C7D-AB8D-EFDD6E0E1994}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C32A339-256B-4C7D-AB8D-EFDD6E0E1994}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C32A339-256B-4C7D-AB8D-EFDD6E0E1994}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06E57D8C-B10F-4419-AB52-497B21B1F6EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06E57D8C-B10F-4419-AB52-497B21B1F6EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06E57D8C-B10F-4419-AB52-497B21B1F6EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06E57D8C-B10F-4419-AB52-497B21B1F6EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

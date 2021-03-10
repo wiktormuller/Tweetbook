@@ -76,4 +76,8 @@
       <_ContentIncludedByDefault Remove="Pages\_ViewStart.cshtml" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Tweetbook.Contracts\Tweetbook.Contracts.csproj" />
+    </ItemGroup>
+
 </Project>
