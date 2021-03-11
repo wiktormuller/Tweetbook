@@ -35,15 +35,20 @@ namespace Tweetbook.Controllers.V1.PostsController
         /// <response code="200">Returns all the posts in the system.</response>
         [HttpGet(ApiRoutes.Posts.GetAll)]
         [Cache(600)]
-        public async Task<IActionResult> GetAll([FromQuery] PaginationQuery paginationQuery)
+        public async Task<IActionResult> GetAll([FromQuery] GetAllPostsQuery query, [FromQuery] PaginationQuery paginationQuery)
         {
             var paginationFilter = new PaginationFilter
             {
                 PageNumber = paginationQuery.PageNumber,
                 PageSize = paginationQuery.PageSize
             };
+
+            var getAllPostsFilter = new GetAllPostsFilter
+            {
+                UserId = query.UserId
+            };
             
-            var posts = await _postService.GetPostsAsync(paginationFilter);
+            var posts = await _postService.GetPostsAsync(getAllPostsFilter, paginationFilter);
             
             var postResponse = posts.Select(post => new PostResponse
             {
